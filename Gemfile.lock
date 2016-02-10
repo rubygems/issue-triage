@@ -1,9 +1,18 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    addressable (2.3.8)
+    faraday (0.9.2)
+      multipart-post (>= 1.2, < 3)
+    multipart-post (2.0.0)
+    octokit (4.2.0)
+      sawyer (~> 0.6.0, >= 0.5.3)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
+    sawyer (0.6.0)
+      addressable (~> 2.3.5)
+      faraday (~> 0.8, < 0.10)
     sinatra (1.4.6)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -14,7 +23,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  sinatra (~> 1.4.5)
+  octokit (~> 4.2)
+  sinatra (~> 1.4)
 
 BUNDLED WITH
    1.11.2
