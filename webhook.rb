@@ -4,6 +4,8 @@ require "json"
 
 module Webhook
   class App < Sinatra::Base
+    set :server, "thin"
+
     configure do
       Octokit.configure do |o|
         o.access_token = ENV["ACCESS_TOKEN"]
