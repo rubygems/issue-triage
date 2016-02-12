@@ -2,8 +2,6 @@ require "sinatra"
 require "octokit"
 require "json"
 
-
-
 module Webhook
   class App < Sinatra::Base
     configure do
