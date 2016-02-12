@@ -15,20 +15,15 @@ module Webhook
       ENV["ISSUE_LABEL"].split(",").each { |s| settings.issue_labels << s } unless ENV["ISSUE_LABEL"].nil?
     end
 
-    post "/add/label" do
+    post "/handle/label" do
       data = JSON.parse(request.body.read)
       issue_number = Webhook.issue_number(data)
 
-      Octokit.add_labels_to_an_issue(settings.repo, issue_number, settings.issue_labels)
-
-      status 200
-    end
-
-    post "/remove/label" do
-      data = JSON.parse(request.body.read)
-      issue_number = Webhook.issue_number(data)
-
-      Octokit.remove_all_labels(settings.repo, issue_number)
+      if data["action"] == "opened"
+        Octokit.add_labels_to_an_issue(settings.repo, issue_number, settings.issue_labels)
+      elsif data["action"] == "closed"
+        Octokit.remove_all_labels(settings.repo, issue_number)
+      end
 
       status 200
     end
