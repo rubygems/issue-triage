@@ -10,9 +10,6 @@ module Webhook
       Octokit.configure do |o|
         o.access_token = ENV["ACCESS_TOKEN"]
       end
-
-      set :open_label,  ENV["ISSUE_LABEL"].to_a unless ENV["ISSUE_LABEL"].nil?
-      set :close_label, ENV["ISSUE_LABEL"]
     end
 
     post "/handle/label" do
@@ -20,9 +17,9 @@ module Webhook
       issue_number = Webhook.issue_number(data)
 
       if data["action"] == "opened"
-        Octokit.add_labels_to_an_issue(ENV["REPO"], issue_number, settings.open_label)
+        Octokit.add_labels_to_an_issue(ENV["REPO"], issue_number, [ ENV["ISSUE_LABEL"] ])
       elsif data["action"] == "closed"
-        Octokit.remove_label(ENV["REPO"], settings.close_label)
+        Octokit.remove_label(ENV["REPO"], issue_number, ENV["ISSUE_LABEL"])
       end
 
       status 200
