@@ -18,12 +18,22 @@ module Webhook
 
       if data["action"] == "opened"
         Octokit.add_labels_to_an_issue(ENV["REPO"], issue_number, [ ENV["ISSUE_LABEL"] ])
+        if data.has_key?("pull_request")
+          files = Octokit.pull_request_files
+          if files.any?(/bundler\//)
+            Octokit.add_labels_to_an_issue(ENV["REPO"], issue_number, [ "bundler" ])
+          end
+        end
       elsif data["action"] == "closed"
         Octokit.remove_label(ENV["REPO"], issue_number, ENV["ISSUE_LABEL"])
       end
 
       status 200
     end
+  end
+
+  def self.pull_rquest_files(pr_number)
+    Octokit.pull_request_files("rubygems/rubygems", pr_number).map {|data| data.filename}
   end
 
   def self.issue_number(json_data)
