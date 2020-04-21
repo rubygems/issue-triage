@@ -20,7 +20,11 @@ module Webhook
         if data.has_key?("pull_request")
           files = Webhook.pull_request_files(issue_number)
           if files.any?(/bundler\//)
-            Octokit.add_labels_to_an_issue(ENV["REPO"], issue_number, [ "Bundler" ])
+            add_labels_to_an_issue(issue_number, "Bundler")
+          elsif files.any?(/rubygems\//)
+            add_labels_to_an_issue(issue_number, "Rubygems")
+          elsif files.any?(/\.github\/workflows\//)
+            add_labels_to_an_issue(issue_number, "CI")
           end
         end
       end
@@ -31,6 +35,10 @@ module Webhook
 
   def self.pull_request_files(pr_number)
     Octokit.pull_request_files("rubygems/rubygems", pr_number).map {|data| data.filename}
+  end
+
+  def self.add_label_to_an_issue(issue_number, label)
+    Octokit.add_labels_to_an_issue(ENV["REPO"], issue_number, [ label ])
   end
 
   def self.issue_number(json_data)
