@@ -31,7 +31,7 @@ module Webhook
 
           labels << "CI" if files.any?(/\.github\/workflows\//)
 
-          Webhook.add_label_to_an_issue(issue_number, labels)
+          Webhook.add_labels_to_an_issue(issue_number, labels)
         end
       end
 
@@ -55,7 +55,7 @@ module Webhook
     Octokit.pull_request_files("rubygems/rubygems", pr_number).map {|data| data.filename}
   end
 
-  def self.add_label_to_an_issue(issue_number, labels)
+  def self.add_labels_to_an_issue(issue_number, labels)
     Octokit.add_labels_to_an_issue(ENV["REPO"], issue_number, labels)
   end
 
