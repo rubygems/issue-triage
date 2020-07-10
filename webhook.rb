@@ -21,8 +21,14 @@ module Webhook
           files = Webhook.pull_request_files(issue_number)
           labels = []
 
-          labels << "Bundler" if files.any?(/bundler\//)
-          labels << "Rubygems" if files.any?(/rubygems\//)
+
+          if files.any? { |file| Webhook.common_file?(file) }
+            labels << "Rubygems" << "Bundler"
+          else
+            labels << "Bundler" if files.any? { |file| Webhook.bundler_file?(file) }
+            labels << "Rubygems" if files.any? { |file| Webhook.rubygems_file?(file) }
+          end
+
           labels << "CI" if files.any?(/\.github\/workflows\//)
 
           Webhook.add_label_to_an_issue(issue_number, labels)
@@ -31,6 +37,18 @@ module Webhook
 
       status 200
     end
+  end
+
+  def self.common_file?(file)
+    file =~ /\.github\/workflows\// && file !~ /\.github\/workflows\/.*-(rubygems|bundler)\.yml/
+  end
+
+  def self.bundler_file?(file)
+    file =~ /bundler\// || file == ".rubocop_bundler.yml" || file = /\.github\/workflows\/.*-bundler\.yml/
+  end
+
+  def self.rubygems_file?(file)
+    !bundler_file?(file)
   end
 
   def self.pull_request_files(pr_number)
