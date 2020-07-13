@@ -16,11 +16,10 @@ module Webhook
       data = JSON.parse(request.body.read)
       issue_number = Webhook.issue_number(data)
 
-      if data["action"] == "opened"
+      if data["action"] == "opened" || data["action"] == "synchronize"
         if data.has_key?("pull_request")
           files = Webhook.pull_request_files(issue_number)
           labels = []
-
 
           if files.any? { |file| Webhook.common_file?(file) }
             labels << "Rubygems" << "Bundler"
@@ -31,7 +30,15 @@ module Webhook
 
           labels << "CI" if files.any?(/\.github\/workflows\//)
 
-          Webhook.add_label_to_an_issue(issue_number, labels)
+          if data["action"] == "synchronize"
+            current_labels = Webhook.issue_labels(issue_number)
+            removed_labels = ["Rubygems", "Bundler", "CI"] - labels
+            added_labels = labels
+
+            Webhook.replace_all_labels(issue_number, current_labels - removed_labels + added_labels)
+          else
+            Webhook.add_labels_to_an_issue(issue_number, labels)
+          end
         end
       end
 
@@ -55,8 +62,16 @@ module Webhook
     Octokit.pull_request_files("rubygems/rubygems", pr_number).map {|data| data.filename}
   end
 
-  def self.add_label_to_an_issue(issue_number, labels)
+  def self.add_labels_to_an_issue(issue_number, labels)
     Octokit.add_labels_to_an_issue(ENV["REPO"], issue_number, labels)
+  end
+
+  def self.issue_labels(issue_number, labels)
+    Octokit.issue_labels(ENV["REPO"], issue_number).map {|data| data.name}
+  end
+
+  def self.replace_all_labels(issue_number, labels)
+    Octokit.replace_all_labels(ENV["REPO"], issue_number, labels)
   end
 
   def self.issue_number(json_data)
