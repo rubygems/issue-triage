@@ -46,6 +46,10 @@ module Webhook
     end
   end
 
+  def self.ignored_file?(file)
+    file == "Manifest.txt" || file =~ /dev_gems\.rb/
+  end
+
   def self.common_file?(file)
     file =~ /\.github\/workflows\// && file !~ /\.github\/workflows\/.*-(rubygems|bundler)\.yml/
   end
@@ -55,7 +59,7 @@ module Webhook
   end
 
   def self.rubygems_file?(file)
-    !bundler_file?(file)
+    !bundler_file?(file) && !ignored_file?(file)
   end
 
   def self.pull_request_files(pr_number)
