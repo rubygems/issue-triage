@@ -51,7 +51,7 @@ module Webhook
   end
 
   def self.bundler_file?(file)
-    file =~ /bundler\// || file == ".rubocop_bundler.yml" || file =~ /\.github\/workflows\/.*-bundler\.yml/
+    file =~ /bundler\// || file == ".rubocop_bundler.yml" || file =~ /\.github\/workflows\/.*-bundler\.yml/ || file == ".github/ISSUE_TEMPLATE/bundler-related-issue.md"
   end
 
   def self.rubygems_file?(file)
